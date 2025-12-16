@@ -38,7 +38,8 @@ app.get("/auth/me", (req, res) => {
     if (req.session.userId) {
         return res.status(200).json({logged: true, user: {
             userId: req.session.userId,
-            email: req.session.email
+            email: req.session.email,
+            clicks: req.session.clicks
         }})
     }
 
@@ -57,6 +58,7 @@ app.post("/auth/signup", (req, res) => {
 
         req.session.userId = createdUser.id
         req.session.email = createdUser.email
+        req.session.clicks = createdUser.clicks
 
         res.status(201).json(createdUser)
     } catch (error) {
@@ -82,6 +84,7 @@ app.post("/auth/signin", (req, res) => {
 
     req.session.email = user.email
     req.session.userId = user.id
+    req.session.clicks = user.clicks
 
     res.status(200).json(user)
 })

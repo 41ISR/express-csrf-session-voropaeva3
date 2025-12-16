@@ -2,10 +2,12 @@ import { useRef } from "react"
 import { useEffect } from "react"
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
+import { useAuthStore } from "../store/useAuthStore"
 
 const Index = () => {
     const navigate = useNavigate()
     const formRef = useRef(null)
+    const {user} = useAuthStore()
     const [clicks, setClicks] = useState(0)
     const clickRef = useRef(null)
     useEffect(() => {
@@ -27,8 +29,23 @@ const Index = () => {
         navigate("/logout")
     }
 
-    const handleSubmit = () => {
-        console.log(clickRef.current)
+    const handleSubmit = async () => {
+        try {
+            const res = await fetch("https://shiny-broccoli-7r4gg65p9gr2xxr6-3000.app.github.dev/click",
+                {
+                    method: "POST",
+                    credentials: "include",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({clicks: clickRef.current})
+                }
+            )
+            const data = await res.json()
+            console.log(data)
+        } catch (error) {
+            console.error(error)
+        }
     }
     return (
         <div className="container">
