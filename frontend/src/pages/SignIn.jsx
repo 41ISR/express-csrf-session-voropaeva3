@@ -11,7 +11,7 @@ const SignIn = () => {
         }
 
         try {
-            const res = await fetch("https://shiny-broccoli-7r4gg65p9gr2xxr6-3000.app.github.dev/auth/signin", {
+            const res = await fetch("https://zany-sniffle-7vpq56j7rww5frgp4-3000.app.github.dev/auth/signin", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"

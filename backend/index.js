@@ -4,7 +4,7 @@ const cors = require("cors")
 const bcrypt = require("bcrypt")
 const cookieParser = require("cookie-parser")
 const session = require("express-session")
-
+const csrf = require("csurf")
 const app = express()
 
 app.set("trust proxy", 1) // ТОЛЬКО ДЛЯ CODESPACES
@@ -33,6 +33,13 @@ app.use(session({
     }
 }))
 
+const csrfMiddleware = csrf({
+    cookie: {
+        httpOnly: false,
+        sameSite: "none",
+        secure: true
+    }
+})
 app.get("/auth/me", (req, res) => {
     console.log(req.session)
     if (req.session.userId) {
@@ -97,7 +104,7 @@ app.post("/auth/logout", (req, res) => {
     })
 })
 
-app.post("/click", (req, res) => {
+app.post("/click", csrfMiddleware, (req, res) => {
     const { clicks } = req.body
     const updateClicks = db
         .prepare("UPDATE users SET clicks = ? WHERE id = ?")
@@ -105,6 +112,23 @@ app.post("/click", (req, res) => {
 
     console.log(updateClicks)
     res.status(200).json({message: "Значение кликов обновлено"})
+})
+
+app.get("/leaderboard", (req, res) => {
+    const users = db.prepare(
+        "SELECT * FROM users ORDER BY clicks DESC LIMIT 10"
+    ).all()
+
+    const sanitizedUsers = users.map((el) => {
+        const {createdAt, password, ...newUser} = el
+        return newUser
+    })
+
+    res.status(200).json(sanitizedUsers)
+})
+
+app.get("/csrf-token", csrfMiddleware, (req, res) => {
+    res.json({token: req.csrfToken()})
 })
 
 app.listen("3000", () => {
