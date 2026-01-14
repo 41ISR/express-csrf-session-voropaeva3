@@ -1,9 +1,14 @@
+import { useState } from "react"
 import {useNavigate} from "react-router-dom"
+import { Link } from "react-router-dom"
 
 const SignUp = () => {
     const navigate = useNavigate()
+    const [error, setError] = useState(undefined)
+
     const handleSubmit = async (e) => {
         e.preventDefault()
+        setError(undefined)
         
         const user = {
             email: e.target.email.value,
@@ -20,12 +25,14 @@ const SignUp = () => {
                 credentials: "include"
             })
 
-            if (!res.ok) throw new Error(res.statusText)
+            const data = await res.json()
 
-            console.log(res)
+            if (!res.ok) throw new Error(data)
+
             navigate("/")
         } catch (error) {
             console.error(error)
+            setError(error.message)
         }
     }
     return (
@@ -40,10 +47,13 @@ const SignUp = () => {
                     <form onSubmit={handleSubmit}>
                         <input id="email" name="email" type="email" placeholder="Почта" required />
                         <input id="password" name="password" type="password" placeholder="Пароль (мин. 6 символов)" required />
+                        {error && <p className="form-error">{error}</p>}
                         <button type="submit">Зарегистрироваться</button>
                     </form>
+                    <p className="form-p">Есть аккаунт? <Link to={"/signin"} className="form-link">Войти</Link></p>
                 </div>
             </div>
+            
         </div>
     )
 }
